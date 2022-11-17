@@ -8,6 +8,7 @@
     <title>Document</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css.css" />
     <style>
 
         .product{
@@ -33,10 +34,52 @@
         .overflow-scroll{
             overflow: scroll;
         }
+        
 
     </style>
+    
+
+    
+
+    
 </head>
 <body>
+
+    <link rel="stylesheet" href="./css.css" />
+    <body>
+      <nav>
+        <div class="countainer">
+          <ul class="pages">
+            <a href="#" class="link link1">
+              <li class="page active page1">Home</li>
+            </a>
+            <a href="#" class="link link2">
+              <li class="page page2">About</li>
+            </a>
+            <a href="#" class="link link3">
+              <li class="page page3">Manu</li>
+            </a>
+            <a href="#" class="link link4">
+              <li class="page page4">Contact</li>
+            </a>
+          </ul>
+          <p class="search">
+            <input
+              class="search-box"
+              type="search"
+              name="search"
+              id="search"
+              placeholder="Search..."
+            />
+          </p>
+          <p class="logo">Coffee Shop</p>
+        </div>
+      </nav>
+    </body>
+  </html>
+  
+    
+   
 
 <div class="container-fluid">
     <div class="row justify-content-center">
@@ -56,11 +99,7 @@
                                         <div class="mr-2">
                                             <input type="text" class="form-control text-capitalize  " id="search" placeholder="search item">
                                         </div>
-                                        <div class="">
-                                            <select name="" id="category" class="custom-select">
-                                                <option value="0">All Category</option>
-                                            </select>
-                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -74,6 +113,7 @@
                             <div class="d-flex justify-content-between align-items-end mt-3 mb-3">
                                 <div class="">
                                     <h4 class="text-primary mb-0">My Cart</h4>
+                                    
                                     <small class="text-black-50">Added Items</small>
 
                                 </div>
@@ -161,11 +201,25 @@
                     <h4>Total</h4>
                     <h4>$ <span class="cart-cost-total">${Number(totalCost).toFixed(2)}</span></h4>
                 </div>
+                <div class="d-flex justify-content-between font-weight-bold px-3">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Buy</button>
+                    </div>
+                    
+                </div>
 
             `)
+
+            
         }else{
             $(".total").html("empty cart")
         }
+
+
+
+          
+
+      
 
     }
 
@@ -246,6 +300,7 @@
                 <p class="mt-3">
                     ${productInfo.title}
                 </p>
+
                 <div class="d-flex justify-content-between align-items-end">
                     <div class="form-row">
                         <button class="btn btn-outline-primary quantity-minus">
@@ -256,8 +311,18 @@
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
-                    <p class="mb-0">$ <span class="item-in-cart-cost">${productInfo.price}</span></p>
+                    <div class="">
+                        <select id="mySelect"  class="btn btn-outline-primary quantity-size ">
+                            <option value="0">--size</option>
+                            <option value="5">S</option>
+                            <option value="10">M</option>
+                            <option value="15">L</option>
+                            
+                        </select>
+                    </div>
+                    <p class="mb-0">$ <span class="item-in-cart-cost">${(productInfo.price)}</span></p>
                 </div>
+
                 <hr>
             </div>
         </div>
@@ -287,6 +352,9 @@
         $(this).parent().siblings("p").find(".item-in-cart-cost").html(newCost.toFixed(2));
         cartTotal();
     })
+    
+ 
+
 
     $("#cart").delegate(".quantity-minus","click",function () {
 
@@ -296,7 +364,8 @@
 
             let newQ = Number(q)-1;
             let newCost = p * newQ;
-            // console.log(p);
+            console.log(q);
+            console.log(p);
             $(this).siblings(".quantity").val(newQ);
             $(this).parent().siblings("p").find(".item-in-cart-cost").html(newCost.toFixed(2));
             cartTotal();
@@ -305,14 +374,36 @@
 
     })
 
+    function quantity_size() { 
+        
+        return $('#mySelect option:selected').val()
+    }
+
+    $("#cart").delegate(".quantity-size","click",function () {
+        
+       
+        let p = $(this).siblings(".quantity").attr("unitPrice");
+        let x = $('#mySelect :selected').val();
+        
+        let newCost = p + x;
+        console.log(x);
+        $(this).parent().siblings("p").find(".item-in-cart-cost").html(newCost.toFixed(2));
+        cartTotal();
+
+    })
+
+
+
     $("#cart").delegate(".quantity","keyup change",function () {
 
         let q =$(this).val();
         let p = $(this).attr("unitPrice");
+        let x = $('#mySelect :selected').val();
         if(q>1){
 
             let newQ = Number(q);
-            let newCost = p * newQ;
+
+            let newCost = (p+x) * newQ;
             // console.log(p);
             $(this).val(newQ);
             $(this).parent().siblings("p").find(".item-in-cart-cost").html(newCost.toFixed(2));
