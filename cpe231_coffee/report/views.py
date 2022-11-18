@@ -108,3 +108,247 @@ class PaymentDelete(View):
 
         return JsonResponse(data)
         #return render(request, 'forms_customer.html', data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Task 1 ---
+class CashierList(View):
+    def get(self, request):
+        cashiers = list(Cashier.objects.all().values())
+        data = dict()
+        data['cashiers'] = cashiers
+
+        return JsonResponse(data)
+
+# Task 2 ---
+@method_decorator(csrf_exempt, name='dispatch')
+class CashierSave(View):
+    def post(self, request):
+        
+        print(request.POST)
+        form = CashierForm(request.POST) 
+        if form.is_valid():
+            form.save()
+        else:
+            ret = dict()
+            ret['result'] = form.errors
+            return JsonResponse(ret)
+
+        cashiers = list(Cashier.objects.all().values())
+        data = dict()
+        data['cashiers'] = cashiers
+        
+        return render(request, 'forms_cashier.html', data)
+
+class CashierForm(forms.ModelForm):
+    class Meta:
+        model = Cashier
+        fields = '__all__'
+
+# Task 3 ---
+@method_decorator(csrf_exempt, name='dispatch')
+class CashierSave2(View):
+    def post(self, request):
+
+        form = CashierForm(request.POST)
+        if form.is_valid():
+            form.save()
+        else:
+            ret = dict()
+            ret['result'] = form.errors
+            ret['cashiers'] = list()
+            return JsonResponse(ret)
+
+        cashiers = list(Cashier.objects.all().values())
+        data = dict()
+        data['cashiers'] = cashiers
+
+        return JsonResponse(data)
+        #return render(request, 'forms_customer.html', data)
+    
