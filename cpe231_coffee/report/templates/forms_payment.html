@@ -1,0 +1,133 @@
+{% extends 'index.html' %}
+
+
+{% block content %}
+    <br />
+    <form id='form_get' action='/payment/get' method='GET'>
+        <label>Payment method</label>
+        <input type='text' name='payment_method' value=''>
+        <input type='submit' value='GET'>
+    </form>
+
+    <button id='btnPaymentList'>Payment List</button>
+
+        <table id='PaymentList' class="container">
+            <thead>
+                <tr>
+                    <th class='col-1'>#</th>
+                    <th class='col-2'>Payment Method</th>
+                    <th class='col-2'>Payment Reference</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for list in payments %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ list.payment_method }}</td>
+                        <td>{{ list.payment_reference }}</td>
+                        <td><input type='button' class='btnDelPayment' value='Del'></td>
+                    <tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td id='btnAddPayment'><i class='fa fa-plus'></i></td>
+                    <form id='form_payment' action='/payment/save' method=POST>
+                        {% csrf_token %}
+
+                        <td><input type='text' id='payment_method' name='payment_method' /></td>
+                        <td><input type='text' id='payment_reference' name='payment_reference' /></td>
+                        <td><input type='submit' value='Add'></td>
+                    </form>    
+                </tr>
+            </tfoot>
+        </table>
+{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready( function () {
+        $('#btnPaymentList').click(function() {
+            console.log('btnPaymentList');
+            $.ajax({
+                url:  '/payment/list',
+                type:  'get',
+                dataType:  'json',
+                success: function  (data) {
+                    let rows =  '';
+                    var i = 1;
+                    data.payments.forEach(payment => {
+                        rows += `
+                        <tr>
+                            <td>${i++}</td>
+                            <td>${payment.payment_method}</td>
+                            <td>${payment.payment_reference}</td>
+                            <td><input type='button' class='btnDelPayment' value='Del'></td>
+                        </tr>`;
+                    });
+                    $('#PaymentList > tbody').html(rows);
+                },
+            });        
+        });
+
+        $('#btnAddPayment').click(function() {
+            console.log('btnAddPayment');
+            var token = $('[name=csrfmiddlewaretoken]').val();
+            $.ajax({
+                url:  '/payment/save2',
+                type:  'post',
+                data: $('#form_payment').serialize(),
+                headers: { "X-CSRFToken": token },
+                dataType:  'json',
+                success: function  (data) {
+                    let rows =  '';
+                    var i = 1;
+                    data.payments.forEach(payment => {
+                        rows += `
+                        <tr>
+                            <td>${i++}</td>
+                            <td>${payment.payment_method}</td>
+                            <td>${payment.payment_reference}</td>
+                            <td><input type='button' class='btnDelPayment' value='Del'></td>
+                        </tr>`;
+                    });
+                    $('#PaymentList > tbody').html(rows);
+                },
+            });   
+        });
+
+        $(document).on("click", ".btnDelPayment" , function() {
+            //console.log(this);
+            var payment_method = $(this).parents('tr').find('td:nth-child(2)').html();
+            console.log(payment_method);
+            var token = $('[name=csrfmiddlewaretoken]').val();
+            $.ajax({
+                url:  '/payment/delete',
+                type:  'post',
+                data: 'payment_method='+payment_method,
+                headers: { "X-CSRFToken": token },
+                dataType:  'json',
+                success: function  (data) {
+                    let rows =  '';
+                    var i = 1;
+                    data.payments.forEach(payment => {
+                        rows += `
+                        <tr>
+                            <td>${i++}</td>
+                            <td>${payment.payment_method}</td>
+                            <td>${payment.payment_reference}</td>
+                            <td><input type='button' class='btnDelPayment' value='Del'></td>
+                        </tr>`;
+                    });
+                    $('#PaymentList > tbody').html(rows);
+                },
+            });
+
+        });
+
+    });
+</script>
+{% endblock %}
+</body>
+</html>

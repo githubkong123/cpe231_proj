@@ -16,6 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from report import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.index, name='Index'),
+    path('payment/list', views.PaymentList.as_view(), name='payment_list'), 
+    path('payment/get', views.payment), 
+    path('payment/get/<payment_code>', views.PaymentGet.as_view(), name='payment_get'), 
+    path('payment/save', views.PaymentSave.as_view(), name='payment_save'),   
+    path('payment/save2', views.PaymentSave2.as_view(), name='payment_save2'), 
+    path('payment/delete', views.PaymentDelete.as_view(), name='payment_delete'), 
 ]
