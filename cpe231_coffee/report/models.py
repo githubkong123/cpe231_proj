@@ -62,15 +62,18 @@ class Bill(models.Model):
 #         return '{"order_no":"%s","item_no":"%s","product_id":"%s","quantity":"%s", "size":"%s","sugar_percentage":"%s","cashier_id":"%s"}' % (self.order_no, self.item_no, self.item_no, 
 #         self.product_id, self.quantity,self.size,self.sugar_percentage,self.cashier_id)
 
-class product(models.Model):
+class Product(models.Model):
     product_id = models.CharField(max_length=20, primary_key= True)
     product_name = models.CharField(max_length = 50)
     stock = models.IntegerField()
+    description = models.CharField(max_length = 200)
+    img_desc = models.CharField(max_length = 500)
+    unit_price  = models.FloatField(null=True)
     class Meta:
         db_table = 'product'
         managed = False
     def __str__(self):
-        return self.order_id
+        return self.product_id
 
 # class BillLineItem(models.Model):
 #     bill_id = models.ForeignKey(Bill, on_delete=models.CASCADE, db_column='bill_id')

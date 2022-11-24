@@ -1,0 +1,247 @@
+{% extends 'index.html' %}
+
+
+{% block content %}
+<br />
+<!-- <form id='form_get' action='/payment/get' method='GET'>
+        <label>Payment method</label>
+        <input type='text' name='payment_method' value=''>
+        <input type='submit' value='GET'>
+    </form> -->
+
+<button id='btnPoductList' hidden>Payment List</button>
+
+<table id='ProductList' class="container">
+    <thead>
+        <tr>
+            <th class='col-1'>#</th>
+            <th class='col-2'>Product Id</th>
+            <th class='col-2'>Product Name </th>
+            <th class='col-2'>stock </th>
+            <th class='col-2'>description </th>
+            <th class='col-2'>unit_price </th>
+            <th class='col-2'>img_desc </th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for list in products %}
+        <tr>
+            <form id='form_product' method=POST>
+                {% csrf_token %}
+                <td class='num'>{{ forloop.counter }}</td>
+                <td class='data'>{{ list.product_id }}</td>
+                <td class='data'>{{ list.product_name }}</td>
+                <td class='data'>{{ list.stock }}</td>
+                <td class='data'>{{ list.description }}</td>
+                <td class='data'>{{ list.unit_price }}</td>
+                <td class='data'>{{ list.img_desc }}</td>
+                <td>
+                  <img src= `{{ list.img_desc }}` >
+                </td>
+                <td><input type='button' class='btnDelProduct' value='Del'></td>
+                <td><input type='button' class='btnEditProduct' value='edit'></td>
+                <td><input type='button' class='btnSaveProduct' value='save'></td>
+            </form>
+        <tr>
+            {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td id='btnAddProduct'><i class='fa fa-plus'></i></td>
+            <form id='form_product' action='/product/save' method=POST>
+                {% csrf_token %}
+
+                <td><input type='text' id='product_id' name='product_id' /></td>
+                <td><input type='text' id='product_name' name='product_name' /></td>
+                <td><input type='text' id='stock' name='stock' /></td>
+                <td><input type='text' id='description' name='description' /></td>
+                <td><input type='text' id='unit_price' name='unit_price' /></td>
+                <td><input type='text' id='img_desc' name='img_desc' /></td>
+                <td><input type='submit' value='Add'></td>
+            </form>
+        </tr>
+    </tfoot>
+</table>
+{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready(function () {
+        $('#btnPoductList').click(function () {
+            console.log('#btnPoductList');
+            $.ajax({
+                url: '/product/list',
+                type: 'get',
+                dataType: 'json',
+                success: function (data) {
+                    let rows = '';
+                    var i = 1;
+                    data.products.forEach(product => {
+                        rows += `
+                        <tr>
+                            <td class = 'num'>${i++}</td>
+                            <td class = 'data'>${product.product_id}</td>
+                            <td class = 'data'>${product.product_name}</td>
+                            <td class = 'data'>${product.stock}</td>
+                            <td class = 'data'>${product.description}</td>
+                            <td class = 'data'>${product.unit_price}</td>
+                            <td class = 'data'>${product.img_desc}</td>
+                            <td>
+                              <img src=${product.img_desc} >
+                            </td>
+                            <td><input type='button' class='btnDelProduct' value='Del'></td>
+                             <td><input type='button' class='btnEditProduct' value='edit'></td>
+                            <td><input type='button' class='btnSaveProduct' value='save'></td>
+                        </tr>`;
+                    });
+                    $('#ProductList > tbody').html(rows);
+                },
+            });
+        });
+        $('#btnPoductList').click();
+
+        const previttem = [];
+        $(document).on('click', '.btnEditProduct', function () {
+            $(this).parent().siblings('td.data').each(function () {
+                var content = $(this).html();
+                previttem.push(content)
+            });
+            $(this).parent().siblings('td.data:nth-child(n+3)').each(function () {
+                var content = $(this).html();
+                console.log(content)
+                $(this).html('<input class ="editable" value="' + content + '" />');
+                // ('<input class ="'editable'" value="' + content + '" />')
+
+            });
+
+            $('tbody tr td:nth-child(10)').hide();
+            $('thead th:nth-child(10)').hide();
+        });
+
+        const nowittem = [];
+        $(document).on('click', '.btnSaveProduct', function () {
+            // console.log($(rows));
+            console.log(previttem)
+            $('input.editable').each(function () {
+                var content = $(this).val();
+                nowittem.push(content)
+            });
+            console.log(nowittem);
+            var token = $('[name=csrfmiddlewaretoken]').val();
+            $.ajax({
+                url: '/product/update',
+                type: 'post',
+                // $('#table1').find('tr:first td.take:eq(1)').text()
+                data: $('#form_product').serialize() + "&product_id=" + previttem[0] + "&product_name=" + nowittem[0]
+                + "&stock=" + nowittem[1]+ "&description=" +nowittem[2] + "&unit_price=" + nowittem[3] + "&img_desc=" + nowittem[4],
+                headers: { "X-CSRFToken": token },
+                dataType: 'json',
+            });
+            $('input.editable').each(function () {
+                var content = $(this).val();
+                $(this).html(content);
+                $(this).contents().unwrap();
+            });
+            // $('img').attr("src","second.jpg");
+            $('tbody tr td:nth-child(10)').show();
+            $('thead th:nth-child(10)').show();
+            $('.btnDelProduct').show();
+            $(this).show();
+            previttem.length = 0;
+            nowittem.length = 0;
+            console.log(nowittem);
+        });
+
+        $('#btnAddProduct').click(function () {
+            console.log('btnAddProduct');
+            var token = $('[name=csrfmiddlewaretoken]').val();
+            $.ajax({
+                url: '/product/save2',
+                type: 'post',
+                data: $('#form_product').serialize(),
+                headers: { "X-CSRFToken": token },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.error) {
+                        console.log(data.error);
+                        alert(data.error);
+                    } else {
+                        alert('บันทึกสำเร็จ');
+                    };
+                    let rows = '';
+                    var i = 1;
+                    data.products.forEach(product => {
+                        rows += `
+                        <tr>
+                            <form id='form_product' method=POST>
+                                {% csrf_token %}
+                                <td class = 'num'>${i++}</td>
+                                <td class = 'data'>${product.product_id}</td>
+                                <td class = 'data'>${product.product_name}</td>
+                                <td class = 'data'>${product.stock}</td>
+                                <td class = 'data'>${product.description}</td>
+                                <td class = 'data'>${product.unit_price}</td>
+                                <td class = 'data'>${product.img_desc}</td>
+                                <td>
+                                  <img src=${product.img_desc} >
+                                </td>
+                                <td ><input type='button' class='btnDelProduct' value='Del'></td>
+                                <td><input type='button' class='btnEditProduct' value='edit'></td>
+                                <td><input type='button' class='btnSaveProduct' value='save'></td>
+                            </form>
+                        </tr>`;
+                    });
+                    $('#ProductList > tbody').html(rows);
+                },
+            });
+        });
+
+        $(document).on("click", ".btnDelProduct", function () {
+            //console.log(this);
+            var product_id = $(this).parents('tr').find('td:nth-child(2)').html();
+            console.log(product_id);
+            var token = $('[name=csrfmiddlewaretoken]').val();
+            $.ajax({
+                url: '/product/delete',
+                type: 'post',
+                data: 'product_id=' + product_id,
+                headers: { "X-CSRFToken": token },
+                dataType: 'json',
+                success: function (data) {
+                    let rows = '';
+                    var i = 1;
+                    data.products.forEach(product => {
+                        rows += `
+                        <tr>
+                          <td class = 'num'>${i++}</td>
+                          <td class = 'data'>${product.product_id}</td>
+                          <td class = 'data'>${product.product_name}</td>
+                          <td class = 'data'>${product.stock}</td>
+                          <td class = 'data'>${product.description}</td>
+                          <td class = 'data'>${product.unit_price}</td>
+                          <td class = 'data'>${product.img_desc}</td>
+                          <td>
+                            <img src=${product.img_desc} >
+                          </td>
+                          <td ><input type='button' class='btnDelProduct' value='Del'></td>
+                          <td><input type='button' class='btnEditProduct' value='edit'></td>
+                          <td><input type='button' class='btnSaveProduct' value='save'></td>
+                        </tr>`;
+                    });
+                    $('#ProductList > tbody').html(rows);
+                },
+            });
+            $('thead th:nth-child(10)').show();
+        });
+
+    });
+
+</script>
+{% endblock %}
+</body>
+
+</html>

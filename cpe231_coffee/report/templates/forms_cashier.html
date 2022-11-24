@@ -2,150 +2,227 @@
 
 
 {% block content %}
-    <br />
-    <form id='form_get' action='/cashier/get' method='GET'>
-        <label>Cashier ID</label>
-        <input type='text' name='cashier_id' value=''>
+<br />
+<!-- <form id='form_get' action='/payment/get' method='GET'>
+        <label>Payment method</label>
+        <input type='text' name='payment_method' value=''>
         <input type='submit' value='GET'>
-    </form>
+    </form> -->
 
-    <button id='btnCashierList'>Cashier List</button>
+<button id='btnCashierList' hidden>Payment List</button>
 
-        <table id='CashierList' class="container">
-            <thead>
-                <tr>
-                    <th class='col-1'>#</th>
-                    <th class='col-2'>Cashier ID</th>
-                    <th class='col-2'>Cashier Name</th>
-                    <th class='col-3'>Phone</th>
-                    <th class='col-3'>Salary</th>
-                    <th class='col-3'>Address</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for list in cashiers %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ list.cashier_id }}</td>
-                        <td>{{ list.name }}</td>
-                        <td>{{ list.phone }}</td>
-                        <td>{{ list.salary }}</td>
-                        <td>{{ list.address }}</td>
-                        <td><input type='button' class='btnDelCashier' value='Del'></td>
-                    <tr>
-                {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td id='btnAddCashier'><i class='fa fa-plus'></i></td>
-                    <form id='form_cashier' action='/cashier/save' method=POST>
-                        {% csrf_token %}
+<table id='CashierList' class="container">
+    <thead>
+        <tr>
+            <th class='col-1'>#</th>
+            <th class='col-2'>Cashier Id</th>
+            <th class='col-2'>Name </th>
+            <th class='col-2'>Phone </th>
+            <th class='col-2'>Salary </th>
+            <th class='col-2'>Address </th>
+            
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for list in cashiers %}
+        <tr>
+            <form id='form_cashier' method=POST>
+                {% csrf_token %}
+                <td class='num'>{{ forloop.counter }}</td>
+                <td class='data'>{{ list.cashier_id }}</td>
+                <td class='data'>{{ list.name }}</td>
+                <td class='data'>{{ list.phone }}</td>
+                <td class='data'>{{ list.salary }}</td>
+                <td class='data'>{{ list.address }}</td>
+                <td><input type='button' class='btnDelCashier' value='Del'></td>
+                <td><input type='button' class='btnEditCashier' value='edit'></td>
+                <td><input type='button' class='btnSaveCashier' value='save'></td>
+            </form>
+        <tr>
+            {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td id='btnAddCashier'><i class='fa fa-plus'></i></td>
+            <form id='form_cashier' action='/cashier/save' method=POST>
+                {% csrf_token %}
 
-                        <td><input type='text' id='cashier_id' name='cashier_id' /></td>
-                        <td><input type='text' id='cashier_name' name='name' /></td>
-                        <td><input type='text' id='phone' name='phone' /></td>
-                        <td><input type='text' id='salary' name='salary' /></td>
-                        <td><input type='text' id='address' name='address' /></td>
-                        <td><input type='submit' value='Add'></td>
-                    </form>    
-                </tr>
-            </tfoot>
-        </table>
+                <td><input type='text' id='cashier_id' name='cashier_id' /></td>
+                <td><input type='text' id='name' name='name' /></td>
+                <td><input type='text' id='phone' name='phone' /></td>
+                <td><input type='text' id='salary' name='salary' /></td>
+                <td><input type='text' id='address' name='address' /></td>
+                <td><input type='submit' value='Add'></td>
+            </form>
+        </tr>
+    </tfoot>
+</table>
 {% endblock %}
 
 {% block script %}
 <script>
-    $(document).ready( function () {
-        $('#btnCashierList').click(function() {
-            console.log('btnCashierList');
+    $(document).ready(function () {
+        $('#btnCashierList').click(function () {
+            console.log('#btnCashierList');
             $.ajax({
-                url:  '/cashier/list',
-                type:  'get',
-                dataType:  'json',
-                success: function  (data) {
-                    let rows =  '';
+                url: '/cashier/list',
+                type: 'get',
+                dataType: 'json',
+                success: function (data) {
+                    let rows = '';
                     var i = 1;
                     data.cashiers.forEach(cashier => {
                         rows += `
                         <tr>
-                            <td>${i++}</td>
-                            <td>${cashier.cashier_id}</td>
-                            <td>${cashier.name}</td>
-                            <td>${cashier.phone}</td>
-                            <td>${cashier.salary}</td>
-                            <td>${cashier.address}</td>
-                            <td><input type='button' class='btnDelcashier' value='Del'></td>
-                        </tr>`;
-                    });
-                    $('#CashierList > tbody').html(rows);
-                },
-            });        
-        });
-
-        $('#btnAddCashier').click(function() {
-            console.log('btnAddCashier');
-            var token = $('[name=csrfmiddlewaretoken]').val();
-            $.ajax({
-                url:  '/cashier/save2',
-                type:  'post',
-                data: $('#form_cashier').serialize(),
-                headers: { "X-CSRFToken": token },
-                dataType:  'json',
-                success: function  (data) {
-                    let rows =  '';
-                    var i = 1;
-                    data.cashiers.forEach(cashier => {
-                        rows += `
-                        <tr>
-                            <td>${i++}</td>
-                            <td>${cashier.cashier_id}</td>
-                            <td>${cashier.name}</td>
-                            <td>${cashier.phone}</td>
-                            <td>${cashier.salary}</td>
-                            <td>${cashier.address}</td>
-                            <td><input type='button' class='btnDelcashier' value='Del'></td>
-                        </tr>`;
-                    });
-                    $('#CashierList > tbody').html(rows);
-                },
-            });   
-        });
-
-        $(document).on("click", ".btnDelCashier" , function() {
-            //console.log(this);
-            var cashier_code = $(this).parents('tr').find('td:nth-child(2)').html();
-            console.log(cashier_code);
-            var token = $('[name=csrfmiddlewaretoken]').val();
-            $.ajax({
-                url:  '/cashier/delete',
-                type:  'post',
-                data: 'cashier_id='+cashier_id,
-                headers: { "X-CSRFToken": token },
-                dataType:  'json',
-                success: function  (data) {
-                    let rows =  '';
-                    var i = 1;
-                    data.cashiers.forEach(cashier => {
-                        rows += `
-                        <tr>
-                            <td>${i++}</td>
-                            <td>${cashier.cashier_id}</td>
-                            <td>${cashier.name}</td>
-                            <td>${cashier.phone}</td>
-                            <td>${cashier.salary}</td>
-                            <td>${cashier.address}</td>
-                            <td><input type='button' class='btnDelcashier' value='Del'></td>
+                            <td class = 'num'>${i++}</td>
+                            <td class = 'data'>${cashier.cashier_id}</td>
+                            <td class = 'data'>${cashier.name}</td>
+                            <td class = 'data'>${cashier.phone}</td>
+                            <td class = 'data'>${cashier.salary}</td>
+                            <td class = 'data'>${cashier.address}</td>
+                            <td><input type='button' class='btnDelCashier' value='Del'></td>
+                             <td><input type='button' class='btnEditCashier' value='edit'></td>
+                            <td><input type='button' class='btnSaveCashier' value='save'></td>
                         </tr>`;
                     });
                     $('#CashierList > tbody').html(rows);
                 },
             });
+        });
+        $('#btnCashierList').click();
 
+        const previttem = [];
+        $(document).on('click', '.btnEditCashier', function () {
+            $(this).parent().siblings('td.data').each(function () {
+                var content = $(this).html();
+                previttem.push(content)
+            });
+            $(this).parent().siblings('td.data:nth-child(n+3)').each(function () {
+                var content = $(this).html();
+                console.log(content)
+                $(this).html('<input class ="editable" value="' + content + '" />');
+                // ('<input class ="'editable'" value="' + content + '" />')
+
+            });
+
+            $('tbody tr td:nth-child(8)').hide();
+            $('thead th:nth-child(8)').hide();
+        });
+
+        const nowittem = [];
+        $(document).on('click', '.btnSaveCashier', function () {
+            // console.log($(rows));
+            console.log(previttem)
+            $('input.editable').each(function () {
+                var content = $(this).val();
+                nowittem.push(content)
+            });
+            console.log(nowittem);
+            var token = $('[name=csrfmiddlewaretoken]').val();
+            $.ajax({
+                url: '/cashier/update',
+                type: 'post',
+                // $('#table1').find('tr:first td.take:eq(1)').text()
+                data: $('#form_cashier').serialize() + "&cashier_id=" + previttem[0] + "&name=" + nowittem[0]
+                + "&phone=" + nowittem[1]+ "&salary=" +nowittem[2] + "&address=" + nowittem[3],
+                headers: { "X-CSRFToken": token },
+                dataType: 'json',
+            });
+            $('input.editable').each(function () {
+                var content = $(this).val();
+                $(this).html(content);
+                $(this).contents().unwrap();
+            });
+            $('tbody tr td:nth-child(8)').show();
+            $('thead th:nth-child(8)').show();
+            $('.btnDelCashier').show();
+            $(this).show();
+            previttem.length = 0;
+            nowittem.length = 0;
+            console.log(nowittem);
+        });
+
+        $('#btnAddCashier').click(function () {
+            console.log('btnAddCashier');
+            var token = $('[name=csrfmiddlewaretoken]').val();
+            $.ajax({
+                url: '/cashier/save2',
+                type: 'post',
+                data: $('#form_cashier').serialize(),
+                headers: { "X-CSRFToken": token },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.error) {
+                        console.log(data.error);
+                        alert(data.error);
+                    } else {
+                        alert('บันทึกสำเร็จ');
+                    };
+                    let rows = '';
+                    var i = 1;
+                    data.cashiers.forEach(cashier => {
+                        rows += `
+                        <tr>
+                            <form id='form_cashier' method=POST>
+                                {% csrf_token %}
+                                <td class = 'num'>${i++}</td>
+                                <td class = 'data'>${cashier.cashier_id}</td>
+                                <td class = 'data'>${cashier.name}</td>
+                                <td class = 'data'>${cashier.phone}</td>
+                                <td class = 'data'>${cashier.salary}</td>
+                                <td class = 'data'>${cashier.address}</td>
+                                <td ><input type='button' class='btnDelCashier' value='Del'></td>
+                                <td><input type='button' class='btnEditCashier' value='edit'></td>
+                                <td><input type='button' class='btnSaveCashier' value='save'></td>
+                            </form>
+                        </tr>`;
+                    });
+                    $('#CashierList > tbody').html(rows);
+                },
+            });
+        });
+
+        $(document).on("click", ".btnDelCashier", function () {
+            //console.log(this);
+            var cashier_id = $(this).parents('tr').find('td:nth-child(2)').html();
+            console.log(cashier_id);
+            var token = $('[name=csrfmiddlewaretoken]').val();
+            $.ajax({
+                url: '/cashier/delete',
+                type: 'post',
+                data: 'cashier_id=' + cashier_id,
+                headers: { "X-CSRFToken": token },
+                dataType: 'json',
+                success: function (data) {
+                    let rows = '';
+                    var i = 1;
+                    data.cashiers.forEach(cashier => {
+                        rows += `
+                        <tr>
+                                <td class = 'num'>${i++}</td>
+                                <td class = 'data'>${cashier.cashier_id}</td>
+                                <td class = 'data'>${cashier.name}</td>
+                                <td class = 'data'>${cashier.phone}</td>
+                                <td class = 'data'>${cashier.salary}</td>
+                                <td class = 'data'>${cashier.address}</td>
+                                <td ><input type='button' class='btnDelCashier' value='Del'></td>
+                                <td><input type='button' class='btnEditCashier' value='edit'></td>
+                                <td><input type='button' class='btnSaveCashier' value='save'></td>
+                        </tr>`;
+                    });
+                    $('#CashierList > tbody').html(rows);
+                },
+            });
+            $('thead th:nth-child(8)').show();
         });
 
     });
+
 </script>
 {% endblock %}
 </body>
+
 </html>
