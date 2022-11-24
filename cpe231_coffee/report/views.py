@@ -461,6 +461,13 @@ class OrderSave2(View):
 
 
 
+class OrderLineForm(forms.ModelForm):
+    class Meta:
+        model = OrderLineItem
+        fields = '__all__'
+
+
+
 
 
 

@@ -44,7 +44,7 @@
                 </td>
                 <td><input type='button' class='btnDelProduct' value='Del'></td>
                 <td><input type='button' class='btnEditProduct' value='edit'></td>
-                <td><input type='button' class='btnSaveProduct' value='save'></td>
+                <td><input type='button' class='btnSaveProduct' value='save' ></td>
             </form>
         <tr>
             {% endfor %}
@@ -99,6 +99,9 @@
                         </tr>`;
                     });
                     $('#ProductList > tbody').html(rows);
+                    $('tbody tr td:nth-child(11)').hide();
+                    $('thead th:nth-child(11)').hide();
+
                 },
             });
         });
@@ -117,9 +120,11 @@
                 // ('<input class ="'editable'" value="' + content + '" />')
 
             });
-
+            $('tbody tr td:nth-child(11)').show();
+            $('thead th:nth-child(11)').show();
             $('tbody tr td:nth-child(10)').hide();
             $('thead th:nth-child(10)').hide();
+
         });
 
         const nowittem = [];
@@ -149,8 +154,9 @@
             // $('img').attr("src","second.jpg");
             $('tbody tr td:nth-child(10)').show();
             $('thead th:nth-child(10)').show();
+            $('thead th:nth-child(11)').hide();
             $('.btnDelProduct').show();
-            $(this).show();
+            $('tbody tr td:nth-child(11)').hide();
             previttem.length = 0;
             nowittem.length = 0;
             console.log(nowittem);
@@ -191,11 +197,14 @@
                                 </td>
                                 <td ><input type='button' class='btnDelProduct' value='Del'></td>
                                 <td><input type='button' class='btnEditProduct' value='edit'></td>
-                                <td><input type='button' class='btnSaveProduct' value='save'></td>
+                                <td><input type='button' class='btnSaveProduct' value='save' ></td>
                             </form>
                         </tr>`;
                     });
                     $('#ProductList > tbody').html(rows);
+                    $('tbody tr td:nth-child(11)').hide();
+                    $('thead th:nth-child(11)').hide();
+                    $('li:nth-child(4)').click();
                 },
             });
         });
@@ -229,13 +238,19 @@
                           </td>
                           <td ><input type='button' class='btnDelProduct' value='Del'></td>
                           <td><input type='button' class='btnEditProduct' value='edit'></td>
-                          <td><input type='button' class='btnSaveProduct' value='save'></td>
+                          <td><input type='button' class='btnSaveProduct' value='save' ></td>
                         </tr>`;
                     });
                     $('#ProductList > tbody').html(rows);
+                    $('thead th:nth-child(10)').show();
+                    $('tbody tr td:nth-child(11)').hide();
+                    $('thead th:nth-child(11)').hide();
+                    $('ul.nav li:nth-child(4)').click();
                 },
             });
-            $('thead th:nth-child(10)').show();
+            // $('thead th:nth-child(10)').show();
+            // $('tbody tr td:nth-child(11)').hide();
+            // $('thead th:nth-child(11)').hide();
         });
 
     });
