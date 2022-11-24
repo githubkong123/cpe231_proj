@@ -37,15 +37,15 @@ class Bill(models.Model):
     def __str__(self):
         return self.bill_id
 
-# class Order(models.Model):
-#     order_id = models.CharField(max_length=20, primary_key =True)
-#     date = models.DateField(null=True)
-#     total_order = models.FloatField(null=True)
-#     class Meta:
-#         db_table = 'order'
-#         managed = False
-#     def __str__(self):
-#         return self.order_id
+class Order(models.Model):
+    order_id = models.CharField(max_length=20, primary_key =True)
+    date = models.DateField(null=True)
+    total_order = models.FloatField(null=True)
+    class Meta:
+        db_table = 'order'
+        managed = False
+    def __str__(self):
+        return self.order_id
 
 # class OrderLineItem(models.Model):
 #     order_no = models.ForeignKey(Order, on_delete=models.CASCADE , db_column='order_no')

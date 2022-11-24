@@ -48,5 +48,7 @@ urlpatterns = [
     path('product/save2', views.ProductSave2.as_view(),         name='product_save2'), 
     path('product/delete', views.ProductDelete.as_view(),       name='product_delete'), 
 
+    path('Coffee_shop/product', views.ReportProductfrontend, name='Coffee_shop' ),
+
     
 ]

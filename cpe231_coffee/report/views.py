@@ -10,6 +10,7 @@ from django.db.models import Max
 from django.db import transaction
 from django.forms.models import model_to_dict
 
+
 from report.models import *
 import json
 # Create your views here.
@@ -380,6 +381,80 @@ class ProductDelete(View):
 
         products = list(Product.objects.all().values())
         data['products'] = products
+
+        return JsonResponse(data)
+        #return render(request, 'forms_customer.html', data)
+
+def CursorToDict(data,columns):
+    result = []
+    fieldnames = [name.replace(" ", "_").lower() for name in columns]
+    for row in data:
+        rowset = []
+        for field in zip(fieldnames, row):
+            rowset.append(field)
+        result.append(dict(rowset))
+    return result
+
+
+
+def ReportProductfrontend(request):
+
+    dataReport = dict()
+    data = list(Product.objects.all().values())
+    dataReport['data'] = data
+    
+
+    
+
+    return render(request, 'templates_frontend/test_index.html', dataReport)
+
+
+
+# def order_form(request):
+#     return render(request, 'product_form.html')
+
+class OrderList(View):
+    def get(self, request):
+        orders = list(Order.objects.all().values())
+        data = dict()
+        data['orders'] = orders
+
+        return JsonResponse(data)
+
+
+class OrderGet(View):
+    def get(self, request, order_id):
+        orders = list(Order.objects.filter(
+            order_id=order_id).values())
+        data = dict()
+        data['orders'] = orders
+
+        return JsonResponse(data)
+
+
+
+
+class OrderForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class OrderSave2(View):
+    def post(self, request):
+        data = dict()
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            form.save()
+        else:
+            data['error'] = form.errors
+            return JsonResponse(data)
+
+        orders = list(Order.objects.all().values())
+        data['orders'] = orders
 
         return JsonResponse(data)
         #return render(request, 'forms_customer.html', data)
