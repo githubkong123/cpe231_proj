@@ -130,6 +130,7 @@
                 + "&phone=" + nowittem[1]+ "&salary=" +nowittem[2] + "&address=" + nowittem[3],
                 headers: { "X-CSRFToken": token },
                 dataType: 'json',
+                success: function (data) {console.log(data);},
             });
             $('input.editable').each(function () {
                 var content = $(this).val();
@@ -155,6 +156,7 @@
                 headers: { "X-CSRFToken": token },
                 dataType: 'json',
                 success: function (data) {
+                    console.log(data);
                     if (data.error) {
                         console.log(data.error);
                         alert(data.error);

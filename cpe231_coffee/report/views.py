@@ -15,6 +15,58 @@ from report.models import *
 import json
 # Create your views here.
 
+def ReportListAllOrders(request):
+    cursor = connection.cursor()
+    cursor.execute ('SELECT o.date as "Date", COUNT(o.order_id) as "Orders per day", SUM(o.total_order) as "Total order" '
+                        ' FROM "order" as o '
+                        ' GROUP BY o.date '
+                        ' ')
+    dataReport = dict()
+    columns = [col[0] for col in cursor.description]
+    data = cursor.fetchall()
+    dataReport['column_name'] = columns
+    dataReport['data'] = CursorToDict(data,columns)
+
+    return render(request, 'report_list_all_orders.html', dataReport)
+
+def ReportBestSellerOfTheDay(request):
+    cursor = connection.cursor()
+    cursor.execute ('SELECT o.date as "Date", oli.product_id as "Product ID" , oli.quantity as "Quantity" '
+                        ' FROM "order_line_item" as oli '
+                        ' JOIN "order" o ON o.order_id = oli.order_id '
+                        ' ')
+    dataReport = dict()
+    columns = [col[0] for col in cursor.description]
+    data = cursor.fetchall()
+    dataReport['column_name'] = columns
+    dataReport['data'] = CursorToDict(data,columns)
+
+    return render(request, 'report_best_seller_of_the_day.html', dataReport)
+
+def ReportDetailOfProducts(request):
+    cursor = connection.cursor()
+    cursor.execute (' SELECT p.product_id as "Product ID" , p.product_name as "Product Name" ,  p.description as "Description" '
+                        ' FROM "product" as p '
+                        ' ')
+    dataReport = dict()
+    columns = [col[0] for col in cursor.description]
+    data = cursor.fetchall()
+    dataReport['column_name'] = columns
+    dataReport['data'] = CursorToDict(data,columns)
+
+    return render(request, 'report_detail_of_products.html', dataReport)
+
+def CursorToDict(data,columns):
+    result = []
+    fieldnames = [name.replace(" ", "_").lower() for name in columns]
+    for row in data:
+        rowset = []
+        for field in zip(fieldnames, row):
+            rowset.append(field)
+        result.append(dict(rowset))
+    return result
+
+
 def reFormatDateMMDDYYYY(ddmmyyyy):
         if (ddmmyyyy == ''):
             return ''
@@ -225,6 +277,7 @@ class CashierSave(View):
             form.save()
         else:
             data['error'] = form.errors
+            data['test'] = request.POST
             return JsonResponse(data)
 
         print('pass')
@@ -243,6 +296,7 @@ class CashierSave2(View):
             form.save()
         else:
             data['error'] = form.errors
+            data['test'] = request.POST
             return JsonResponse(data)
 
         cashiers = list(Cashier.objects.all().values())
@@ -338,7 +392,7 @@ class ProductSave(View):
         if form.is_valid():
             form.save()
         else:
-            data['error'] = form.errors
+            data['test'] = request.POST
             return JsonResponse(data)
 
         print('pass')
@@ -356,7 +410,7 @@ class ProductSave2(View):
         if form.is_valid():
             form.save()
         else:
-            data['error'] = form.errors
+            data['test'] = request.POST
             return JsonResponse(data)
 
         products = list(Product.objects.all().values())
@@ -459,12 +513,48 @@ class OrderSave2(View):
         return JsonResponse(data)
         #return render(request, 'forms_customer.html', data)
 
+import psycopg2
+@method_decorator(csrf_exempt, name='dispatch')
+class UpdateStock(View):
+    def post(self, request):
+        connection = psycopg2.connect(user="postgres",
+                                        password="0507152035",
+                                        host="localhost",
+                                        database="CPE231")
+        cursor = connection.cursor()
+        data = json.loads(request.POST.get('lineitem', ''))
+        # MyTable.objects.filter(pk=some_value).update(field1='some value')
+        print(data)
+        # for i in data:
+        #     # query to update table with where clause
+        #     sql='''update product set stock ='edit' WHERE product_id = %s; '''
+        #     product_id = request.POST['product_id']
+
+        #     # execute the query
+        #     cursor.execute(sql,product_id)
+        #     print('table updated..')
+
+        #     print('table after updation...')
+        #     sql2='''select * from payment_method;'''
+        #     cursor.execute(sql2)
+
+        #     # print table after modification
+        #     print(cursor.fetchall())
+
+        #     # Commit your changes in the database
+        #     connection.commit()
+
+        # # Closing the connection
+        # connection.close()# code
 
 
-class OrderLineForm(forms.ModelForm):
-    class Meta:
-        model = OrderLineItem
-        fields = '__all__'
+
+
+
+# class OrderLineForm(forms.ModelForm):
+#     class Meta:
+#         model = OrderLineItem
+#         fields = '__all__'
 
 
 
