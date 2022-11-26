@@ -102,6 +102,11 @@
         </div>
 
     </div> -->
+    <div class="container">
+        <h4>Cashier id</h4>
+        <select id="cashier_id">
+        </select>
+    </div>
 
     <div class="container-fluid">
         <div class="row justify-content-center">
@@ -167,13 +172,8 @@
         <table>
             <tfoot>
                 <tr>
-                    <form id='form_cashier' method=POST>
+                    <form id='form_order' method=POST>
                         {% csrf_token %}
-
-                        <td id='cashier_id' name='cashier_id'></td>
-                        <td id='name' name='name'></td>
-                        <td id='phone' name='phone'></td>
-                        <td id='salary' name='salary'></td>
                     </form>
                 </tr>
             </tfoot>
@@ -243,24 +243,6 @@
                 `)
                 }
             })
-            //     $(".total").html(`
-
-            //     <div class="d-flex justify-content-between font-weight-bold px-3">
-            //         <h4>Total</h4>
-            //         <h4>$ <span class="cart-cost-total">${Number(totalCost).toFixed(2)}</span></h4>
-            //     </div>
-            //     <div class="d-flex justify-content-between font-weight-bold px-3">   
-            //     </div>
-                
-            //         <div class="modal-footer">
-                    
-            //             <div class="container">
-            //                 <p align="center">
-            //                     <button class="save_order" @click="generateDialog">Save</button> 
-            //                 </p>
-            //             </div>
-            //         </div>
-            // `)
             } else {
                 $(".total").html("empty cart")
             }
@@ -269,7 +251,22 @@
 
 
 
+
         $(document).ready(function () {
+            $.ajax({
+                url: '/cashier/list',
+                type: 'get',
+                dataType: 'json',
+                success: function(data){
+                    var opt = '';
+                    data.cashiers.forEach(cashier => {
+                        opt += `<option value="${cashier.cashier_id}">${cashier.cashier_id}</option>` 
+                    });
+                    $('#cashier_id').html(`
+                        ${opt}
+                    `);
+                }
+            });
 
             $.ajax({
                 url: '/product/list',
@@ -411,6 +408,7 @@
                 let quantity = $(this).find('.form-control').val()
                 let total_price = $(this).find('.item-in-cart-cost').html()
                 rows[i] = {};
+                rows[i]['item_no'] = (i+1);
                 rows[i]['product_id'] = product_id;
                 rows[i]['quantity'] = quantity
                 rows[i]['total_price'] = total_price
@@ -420,12 +418,29 @@
                 console.log(product_id, quantity, total_price);
             });
             var token = $('[name=csrfmiddlewaretoken]').val();
+            console.log($('#form_order').serialize());
             $.ajax({
-                url: '/coffeeshop/updatestock',
+                url: '/coffeeshop/ordercreate',
                 type: 'post',
                 dataType: 'json',
                 headers: { "X-CSRFToken": token },
-                data: {'lineitem': JSON.stringify({'lineitem': rows})},
+                data: $('#form_order').serialize()+"&date="+'28/11/2022'
+                +"&cashier_id="+$('#cashier_id').val().trim() +"&total_order="+$('.cart-cost-total').html()
+                + "&lineitem=" + JSON.stringify({'lineitem': rows})+'&order_no='+'',
+                success: function (data) {
+                    // toShow(data);
+                    console.log(data);
+                    // data.products.forEach(product => {
+                    //     products.push(product)
+                    // })
+                }
+            })
+            $.ajax({
+                url: '/coffeeshop/billcreate',
+                type: 'post',
+                dataType: 'json',
+                headers: { "X-CSRFToken": token },
+                data: $('#form_order').serialize()+"&payment_method="+$('#payment_method').val().trim()+'&order_no='+''+'&bill_no='+'',
                 success: function (data) {
                     // toShow(data);
                     console.log(data);
@@ -447,7 +462,7 @@
     //                 }
     // });
             console.log(rows)
-            // window.location.reload(); 
+            window.location.reload(); 
             // refreash after save
         });
 

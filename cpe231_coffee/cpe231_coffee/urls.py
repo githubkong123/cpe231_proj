@@ -53,7 +53,8 @@ urlpatterns = [
     path('ReportDetailOfProducts', views.ReportDetailOfProducts),
     
     path('Coffee_shop/product', views.ReportProductfrontend, name='Coffee_shop' ),
-    path('coffeeshop/updatestock', views.ReportProductfrontend, name='update_stock' ),
+    path('coffeeshop/ordercreate', views.OrderCreate.as_view(), name='order create' ),
+    path('coffeeshop/billcreate', views.BillCreate.as_view(), name='bill create' ),
 
     
 ]

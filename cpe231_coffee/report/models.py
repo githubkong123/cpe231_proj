@@ -24,44 +24,6 @@ class Payment(models.Model):
     def __str__(self):
         return self.payment_method
         
-class Bill(models.Model):
-    bill_id = models.CharField(max_length=20,primary_key=True)
-    total_order = models.FloatField(null=True, blank=True)
-    date = models.DateField(null=True)
-    cashier_id = models.ForeignKey(Cashier, on_delete=models.CASCADE, db_column='cashier_id')
-    payment_method = models.ForeignKey(Payment, on_delete=models.CASCADE, db_column='payment_method')
-    total_received = models.FloatField(null=True, blank=True)
-    class Meta:
-        db_table = "bill"
-        managed = False
-    def __str__(self):
-        return self.bill_id
-
-class Order(models.Model):
-    order_id = models.CharField(max_length=20, primary_key =True)
-    date = models.DateField(null=True)
-    total_order = models.FloatField(null=True)
-    class Meta:
-        db_table = 'order'
-        managed = False
-    def __str__(self):
-        return self.order_id
-
-# class OrderLineItem(models.Model):
-#     order_no = models.ForeignKey(Order, on_delete=models.CASCADE , db_column='order_no')
-#     item_no = models.IntegerField()
-#     product_id = models.ForeignKey(Order, on_delete=models.CASCADE , db_column='product_id')
-#     quantity = models.IntegerField()
-#     size = models.CharField(max_length=20)
-#     sugar_percentage = models.CharField(max_length=20)
-#     cashier_id = models.ForeignKey(Cashier, on_delete=models.CASCADE, db_column='cashier_id')
-#     class Meta:
-#         db_table = "order_line_item"
-#         managed = False
-#     def __str__(self):
-#         return '{"order_no":"%s","item_no":"%s","product_id":"%s","quantity":"%s", "size":"%s","sugar_percentage":"%s","cashier_id":"%s"}' % (self.order_no, self.item_no, self.item_no, 
-#         self.product_id, self.quantity,self.size,self.sugar_percentage,self.cashier_id)
-
 class Product(models.Model):
     product_id = models.CharField(max_length=20, primary_key= True)
     product_name = models.CharField(max_length = 50)
@@ -75,16 +37,53 @@ class Product(models.Model):
     def __str__(self):
         return self.product_id
 
+class Order(models.Model):
+    order_no = models.CharField(max_length=20, primary_key =True)
+    date = models.DateField(null=True)
+    total_order = models.FloatField(null=True)
+    cashier_id = models.ForeignKey(Cashier, on_delete=models.CASCADE, db_column='cashier_id')
+    class Meta:
+        db_table = 'order_n'
+        managed = False
+    def __str__(self):
+        return self.order_no
+
+class OrderLineItem(models.Model):
+    order_no = models.ForeignKey(Order, on_delete=models.CASCADE , db_column='order_no')
+    item_no = models.IntegerField()
+    product_id = models.ForeignKey(Product, on_delete=models.CASCADE , db_column='product_id')
+    quantity = models.IntegerField()
+    total_price = models.FloatField(null=True)
+    class Meta:
+        db_table = "order_line_item"
+        unique_together = (("order_no", "item_no"),)
+        managed = False
+    def __str__(self):
+        return '{"order_no":"%s","item_no":"%s","product_id":"%s","quantity":"%s","total_price":" %S}' % (self.order_no, self.item_no, self.item_no, 
+        self.product_id, self.quantity,self.total_price)
+
+class Bill(models.Model):
+    bill_no = models.CharField(max_length=20,primary_key=True)
+    payment_method = models.ForeignKey(Payment, on_delete=models.CASCADE, db_column='payment_method')
+    order_no = models.CharField(max_length=20)
+    class Meta:
+        db_table = "bill"
+        unique_together = (("order_no", "bill_no"),)
+        managed = False
+    def __str__(self):
+        return self.bill_no
+
+
 # class BillLineItem(models.Model):
-#     bill_id = models.ForeignKey(Bill, on_delete=models.CASCADE, db_column='bill_id')
+#     bill_no = models.ForeignKey(Bill, on_delete=models.CASCADE, db_column='bill_no')
 #     item_no = models.CharField(max_length=20,null=True)
-#     order_id = models.ForeignKey(Order, on_delete=models.CASCADE, db_column='order_id')
+#     order_no = models.ForeignKey(Order, on_delete=models.CASCADE, db_column='order_no')
     
 #     class Meta:
 #         db_table = "bill_line_item"
 #         managed = False
 #     def __str__(self):
-#         return '{"bill_id":"%s","iten_no":"%s","order_id":"%s"}' % (self.bill_id, self.item_no, self.order_id)
+#         return '{"bill_no":"%s","iten_no":"%s","order_no":"%s"}' % (self.bill_no, self.item_no, self.order_no)
 
 # class ProductLineItem(models.Model):
 #     product_id = models.ForeignKey(Bill, on_delete=models.CASCADE, db_column='product_id')

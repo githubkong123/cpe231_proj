@@ -9,6 +9,7 @@ from django.db import connection
 from django.db.models import Max
 from django.db import transaction
 from django.forms.models import model_to_dict
+import re
 
 
 from report.models import *
@@ -17,7 +18,7 @@ import json
 
 def ReportListAllOrders(request):
     cursor = connection.cursor()
-    cursor.execute ('SELECT o.date as "Date", COUNT(o.order_id) as "Orders per day", SUM(o.total_order) as "Total order" '
+    cursor.execute ('SELECT o.date as "Date", COUNT(o.order_no) as "Orders per day", SUM(o.total_order) as "Total order" '
                         ' FROM "order" as o '
                         ' GROUP BY o.date '
                         ' ')
@@ -33,7 +34,7 @@ def ReportBestSellerOfTheDay(request):
     cursor = connection.cursor()
     cursor.execute ('SELECT o.date as "Date", oli.product_id as "Product ID" , oli.quantity as "Quantity" '
                         ' FROM "order_line_item" as oli '
-                        ' JOIN "order" o ON o.order_id = oli.order_id '
+                        ' JOIN "order" o ON o.order_no = oli.order_no '
                         ' ')
     dataReport = dict()
     columns = [col[0] for col in cursor.description]
@@ -477,9 +478,9 @@ class OrderList(View):
 
 
 class OrderGet(View):
-    def get(self, request, order_id):
+    def get(self, request, order_no):
         orders = list(Order.objects.filter(
-            order_id=order_id).values())
+            order_no=order_no).values())
         data = dict()
         data['orders'] = orders
 
@@ -493,69 +494,145 @@ class OrderForm(forms.ModelForm):
         model = Order
         fields = '__all__'
 
+class OrderlineItemForm(forms.ModelForm):
+    class Meta:
+        model = OrderLineItem
+        fields = '__all__'
+
+class BillForm(forms.ModelForm):
+    class Meta:
+        model = Bill
+        fields = '__all__'
 
 
+# @method_decorator(csrf_exempt, name='dispatch')
+# class OrderSave2(View):
+#     def post(self, request):
+#         data = dict()
+#         form = OrderForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#         else:
+#             data['error'] = form.errors
+#             return JsonResponse(data)
+
+#         orders = list(Order.objects.all().values())
+#         data['orders'] = orders
+
+#         return JsonResponse(data)
+#         #return render(request, 'forms_customer.html', data)
+temp = ''
 
 @method_decorator(csrf_exempt, name='dispatch')
-class OrderSave2(View):
+class OrderCreate(View):
+
+    @transaction.atomic
     def post(self, request):
+        print(request.POST)
+        print(json.loads(request.POST['lineitem']))
+        if Order.objects.count() != 0:
+            order_no_max = Order.objects.aggregate(Max('order_no'))['order_no__max']
+            order_no_temp = [re.findall(r'(\w+?)(\d+)', order_no_max)[0]][0]   
+            next_order_no = order_no_temp[0] + str(int(order_no_temp[1])+1) + "/22"
+        else:
+            next_order_no = "OD100/22"
+
+        global temp
+        if next_order_no != '':
+            temp = next_order_no
+
+        print(next_order_no)
+
+        request.POST = request.POST.copy()
+        request.POST['order_no'] = next_order_no
+        request.POST['date'] = reFormatDateMMDDYYYY(request.POST['date'])
+        request.POST['total_order'] = reFormatNumber(request.POST['total_order'])
+        request.POST['cashier_id'] = request.POST['cashier_id']
+
+
+        
         data = dict()
         form = OrderForm(request.POST)
         if form.is_valid():
-            form.save()
-        else:
-            data['error'] = form.errors
-            return JsonResponse(data)
+            order = form.save()
+            OrderLineItem.objects.filter(order_no=next_order_no).delete()
+            dict_lineitem = json.loads(request.POST['lineitem'])
+            for lineitem in dict_lineitem['lineitem']:
+                lineitem['order_no'] = next_order_no
+                lineitem['quantity'] = reFormatNumber(lineitem['quantity'])
+                lineitem['total_price'] = reFormatNumber(lineitem['total_price'])
+                pre_stock =  Product.objects.filter(product_id= lineitem['product_id']).values()[0]['stock'] - int(lineitem['quantity'])
+                print('pre_stock= ',pre_stock)
+                Product.objects.filter(product_id= lineitem['product_id']).update(stock = pre_stock)
 
-        orders = list(Order.objects.all().values())
-        data['orders'] = orders
+                print(lineitem)
+                formlineitem = OrderlineItemForm(lineitem)
+                
+                try:
+                    formlineitem.save()
+                except:
+                    data['error'] = formlineitem.errors
+                    print(formlineitem.errors)
+                    transaction.set_rollback(True)
+
+            data['order'] = model_to_dict(order)
+        else:
+            # if invoice from is not valid return error message
+            data['error'] = form.errors
+            print (form.errors)
+        
+        return JsonResponse(data)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class BillCreate(View):
+    def post(self, request):
+        # if Order.objects.count() != 0:
+        #     order_no_max = Order.objects.aggregate(Max('order_no'))['order_no__max']
+        #     order_no_temp = [re.findall(r'(\w+?)(\d+)', order_no_max)[0]][0]   
+        #     select_order_no = order_no_temp[0] + str(int(order_no_temp[1])) + "/22"
+        # else:
+        #     select_order_no = "OD100/22"
+
+        if Bill.objects.count() != 0:
+                bill_no_max = Bill.objects.aggregate(Max('bill_no'))['bill_no__max']
+                bill_no_temp = [re.findall(r'(\w+?)(\d+)', bill_no_max)[0]][0]   
+                next_bill_no = bill_no_temp[0] + str(int(bill_no_temp[1])+1) + "/22"
+        else:
+            next_bill_no = "BT100/22"
+
+        print('bill--------------------------')
+        # if Order.objects.count() != 0:
+        #     order_no_max = Order.objects.aggregate(Max('order_no'))['order_no__max']
+        #     order_no_temp = [re.findall(r'(\w+?)(\d+)', order_no_max)[0]][0]   
+        #     select_order_no = order_no_temp[0] + str(int(order_no_temp[1])) + "/22"
+        # else:
+        #     select_order_no = "OD100/22"
+
+        # print(select_order_no)
+        print(temp)
+
+        request.POST = request.POST.copy()
+        request.POST['payment_method'] = request.POST['payment_method']
+        request.POST['bill_no'] = next_bill_no
+        request.POST['order_no'] = temp
+
+        data = dict()
+        form_bill = BillForm(request.POST)
+        if form_bill.is_valid():
+            bill = form_bill.save()
+            data['bill'] = model_to_dict(bill)
+        else:
+            # if invoice from is not valid return error message
+            data['error'] = form_bill.errors
+            print (form_bill.errors)
 
         return JsonResponse(data)
-        #return render(request, 'forms_customer.html', data)
-
-import psycopg2
-@method_decorator(csrf_exempt, name='dispatch')
-class UpdateStock(View):
-    def post(self, request):
-        connection = psycopg2.connect(user="postgres",
-                                        password="0507152035",
-                                        host="localhost",
-                                        database="CPE231")
-        cursor = connection.cursor()
-        data = json.loads(request.POST.get('lineitem', ''))
-        # MyTable.objects.filter(pk=some_value).update(field1='some value')
-        print(data)
-        # for i in data:
-        #     # query to update table with where clause
-        #     sql='''update product set stock ='edit' WHERE product_id = %s; '''
-        #     product_id = request.POST['product_id']
-
-        #     # execute the query
-        #     cursor.execute(sql,product_id)
-        #     print('table updated..')
-
-        #     print('table after updation...')
-        #     sql2='''select * from payment_method;'''
-        #     cursor.execute(sql2)
-
-        #     # print table after modification
-        #     print(cursor.fetchall())
-
-        #     # Commit your changes in the database
-        #     connection.commit()
-
-        # # Closing the connection
-        # connection.close()# code
 
 
+        
 
 
-
-# class OrderLineForm(forms.ModelForm):
-#     class Meta:
-#         model = OrderLineItem
-#         fields = '__all__'
-
+        
 
 
 
