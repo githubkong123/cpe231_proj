@@ -277,12 +277,15 @@
                     console.log(data);
                     data.products.forEach(product => {
                         products.push(product)
-
+                        var choice = ''
+                        if (product.stock == 0) {
+                            choice = 'hidden'
+                        };
 
 
                         $("#products").append(`
 
-                    <div class="card product pt-4">
+                    <div class="card product pt-4" ${choice}>
                         <img src="${product.img_desc}" class="card-img-top" alt="">
                         <div class="card-body border rounded">
                             <p class="card-title font-weight-bold text-nowrap overflow-hidden text-primary">
