@@ -16,6 +16,7 @@ from report.models import *
 import json
 # Create your views here.
 
+# Report 1 ---
 def ReportListAllOrders(request):
     cursor = connection.cursor()
     cursor.execute (' SELECT o.date as "Date", COUNT(o.order_no) as "Number of Orders", SUM(oli.total_price) as "Daily Income" '
@@ -31,11 +32,15 @@ def ReportListAllOrders(request):
 
     return render(request, 'report_list_all_orders.html', dataReport)
 
+
+# Report 2 ---
 def ReportBestSellersOfTheDay(request):
     cursor = connection.cursor()
-    cursor.execute (' SELECT o.date as "Date", oli.product_id as "Product ID" , oli.quantity as "Quantity" '
+    cursor.execute (' SELECT o.date as "Date", oli.product_id as "Product ID" , SUM(oli.quantity) as "Quantity" '
                         ' FROM "order_line_item" as oli '
                         ' JOIN "order_n" o ON o.order_no = oli.order_no '
+                        ' GROUP BY o.date , oli.product_id '
+                        ' Order by o.date ASC '
                         ' ')
     dataReport = dict()
     columns = [col[0] for col in cursor.description]
