@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    <H1 id=borderCL > <<< Report list all orders >>> </H1>
+    <H1 id=borderCL > <<< Report List All Orders >>> </H1>
 
     <table id='maintable' class='table'>
         <tr>
@@ -15,8 +15,8 @@
         <tr>
             <td>{{ forloop.counter }}</td>
             <td>{{ lineitem.date }}</td>
-            <td>{{ lineitem.orders_per_day }}</td>
-            <td>{{ lineitem.total_order }}</td>
+            <td>{{ lineitem.number_of_orders }}</td>
+            <td>{{ lineitem.daily_income }}</td>
         <tr>
     {% endfor %}
     

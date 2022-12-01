@@ -1,8 +1,10 @@
 {% extends 'index.html' %}
 
 {% block content %}
-    
-    <table class='table'>
+
+    <H1 id=borderCL > <<< Report Best Sellers Of The Day >>> </H1>
+
+    <table id='maintable' class='table'>
         <tr>
             <th>#</th>
             {% for name in column_name %}
@@ -12,14 +14,13 @@
     {% for lineitem in data %}
         <tr>
             <td>{{ forloop.counter }}</td>
-            <td>{{ lineitem.product_code }}</td>
-            <td>{{ lineitem.product_name }}</td>
-            <td>{{ lineitem.total_quantity_sold }}</td>
-            <td>{{ lineitem.total_value_sold }}</td>
+            <td>{{ lineitem.date }}</td>
+            <td>{{ lineitem.product_id }}</td>
+            <td>{{ lineitem.quantity }}</td>
         <tr>
     {% endfor %}
     
-    {% endblock %}
+{% endblock %}
     
 
 </body>

@@ -49,8 +49,8 @@ urlpatterns = [
     path('product/delete', views.ProductDelete.as_view(),       name='product_delete'), 
 
     path('ReportListAllOrders', views.ReportListAllOrders),
-    path('ReportBestSellerOfTheDay', views.ReportBestSellerOfTheDay),
-    path('ReportDetailOfProducts', views.ReportDetailOfProducts),
+    path('ReportBestSellersOfTheDay', views.ReportBestSellersOfTheDay),
+    # path('ReportDetailsOfProducts', views.ReportDetailsOfProducts), 
     
     path('Coffee_shop/product', views.ReportProductfrontend, name='Coffee_shop' ),
     path('coffeeshop/ordercreate', views.OrderCreate.as_view(), name='order create' ),

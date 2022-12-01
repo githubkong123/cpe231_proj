@@ -76,6 +76,8 @@
                         </tr>`;
                     });
                     $('#PaymentList > tbody').html(rows);
+                    $('tbody tr td:nth-child(6)').hide();
+                    $('thead th:nth-child(6)').hide();
                 },
             });
         });
@@ -98,7 +100,8 @@
                 // ('<input class ="'editable'" value="' + content + '" />')
 
             });
-
+            $('tbody tr td:nth-child(6)').show();
+            $('thead th:nth-child(6)').show();
             $('tbody tr td:nth-child(5)').hide();
             $('thead th:nth-child(5)').hide();
         });
@@ -126,7 +129,9 @@
             });
             $('tbody tr td:nth-child(5)').show();
             $('thead th:nth-child(5)').show();
+            $('thead th:nth-child(6)').hide();
             $('.btnDelPayment').show();
+            $('tbody tr td:nth-child(6)').hide();
             $(this).show();
             previttem.length = 0;
         });
@@ -164,6 +169,9 @@
                         </tr>`;
                     });
                     $('#PaymentList > tbody').html(rows);
+                    $('tbody tr td:nth-child(6)').hide();
+                    $('thead th:nth-child(6)').hide();
+                    $('ul.nav li:nth-child(2)').click();
                 },
             });
         });
@@ -194,9 +202,14 @@
                         </tr>`;
                     });
                     $('#PaymentList > tbody').html(rows);
+                    $('thead th:nth-child(5)').show();
+                    $('tbody tr td:nth-child(6)').hide();
+                    $('thead th:nth-child(6)').hide();
+                    $('ul.nav li:nth-child(2)').click();
+                    // $('ul.nav li:nth-child(4)').click();
                 },
             });
-            $('thead th:nth-child(5)').show();
+            // $('thead th:nth-child(5)').show();
         });
 
     });

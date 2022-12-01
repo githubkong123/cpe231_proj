@@ -18,8 +18,9 @@ import json
 
 def ReportListAllOrders(request):
     cursor = connection.cursor()
-    cursor.execute ('SELECT o.date as "Date", COUNT(o.order_no) as "Orders per day", SUM(o.total_order) as "Total order" '
-                        ' FROM "order" as o '
+    cursor.execute (' SELECT o.date as "Date", COUNT(o.order_no) as "Number of Orders", SUM(oli.total_price) as "Daily Income" '
+                        ' FROM order_n as o '
+                        ' JOIN order_line_item as oli ON o.order_no = oli.order_no '
                         ' GROUP BY o.date '
                         ' ')
     dataReport = dict()
@@ -30,11 +31,11 @@ def ReportListAllOrders(request):
 
     return render(request, 'report_list_all_orders.html', dataReport)
 
-def ReportBestSellerOfTheDay(request):
+def ReportBestSellersOfTheDay(request):
     cursor = connection.cursor()
-    cursor.execute ('SELECT o.date as "Date", oli.product_id as "Product ID" , oli.quantity as "Quantity" '
+    cursor.execute (' SELECT o.date as "Date", oli.product_id as "Product ID" , oli.quantity as "Quantity" '
                         ' FROM "order_line_item" as oli '
-                        ' JOIN "order" o ON o.order_no = oli.order_no '
+                        ' JOIN "order_n" o ON o.order_no = oli.order_no '
                         ' ')
     dataReport = dict()
     columns = [col[0] for col in cursor.description]
@@ -42,9 +43,9 @@ def ReportBestSellerOfTheDay(request):
     dataReport['column_name'] = columns
     dataReport['data'] = CursorToDict(data,columns)
 
-    return render(request, 'report_best_seller_of_the_day.html', dataReport)
+    return render(request, 'report_best_sellers_of_the_day.html', dataReport)
 
-def ReportDetailOfProducts(request):
+#def ReportDetailsOfProducts(request):
     cursor = connection.cursor()
     cursor.execute (' SELECT p.product_id as "Product ID" , p.product_name as "Product Name" ,  p.description as "Description" '
                         ' FROM "product" as p '
@@ -55,7 +56,7 @@ def ReportDetailOfProducts(request):
     dataReport['column_name'] = columns
     dataReport['data'] = CursorToDict(data,columns)
 
-    return render(request, 'report_detail_of_products.html', dataReport)
+    return render(request, 'report_details_of_products.html', dataReport) #
 
 def CursorToDict(data,columns):
     result = []

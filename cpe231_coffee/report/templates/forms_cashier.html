@@ -89,6 +89,8 @@
                         </tr>`;
                     });
                     $('#CashierList > tbody').html(rows);
+                    $('tbody tr td:nth-child(9)').hide();
+                    $('thead th:nth-child(9)').hide();
                 },
             });
         });
@@ -107,7 +109,8 @@
                 // ('<input class ="'editable'" value="' + content + '" />')
 
             });
-
+            $('tbody tr td:nth-child(9)').show();
+            $('thead th:nth-child(9)').show();
             $('tbody tr td:nth-child(8)').hide();
             $('thead th:nth-child(8)').hide();
         });
@@ -139,6 +142,8 @@
             });
             $('tbody tr td:nth-child(8)').show();
             $('thead th:nth-child(8)').show();
+            $('tbody tr td:nth-child(9)').hide();
+            $('thead th:nth-child(9)').hide();
             $('.btnDelCashier').show();
             $(this).show();
             previttem.length = 0;
@@ -183,6 +188,9 @@
                         </tr>`;
                     });
                     $('#CashierList > tbody').html(rows);
+                    $('tbody tr td:nth-child(9)').hide();
+                    $('thead th:nth-child(9)').hide();
+                    $('ul.nav li:nth-child(3)').click();
                 },
             });
         });
@@ -216,9 +224,13 @@
                         </tr>`;
                     });
                     $('#CashierList > tbody').html(rows);
+                    $('thead th:nth-child(8)').show();
+                    $('tbody tr td:nth-child(9)').hide();
+                    $('thead th:nth-child(9)').hide();
+                    $('ul.nav li:nth-child(3)').click();
                 },
             });
-            $('thead th:nth-child(8)').show();
+            // $('thead th:nth-child(8)').show();
         });
 
     });
